@@ -23,7 +23,8 @@ This Python module contains the code for implementing 21 community detection alg
 The Python module takes in an edgelist file or a NetworkX graph as input and returns a list of lists containing the communities. It optionally writes the output into a `.txt` file when the path for the same is provided. An example usage utilizing the Python CLI is highlighted below:
 
 ```sh
-python -m community_detection_1.main network.dat MLRMCL --output_file output.txt--algorithm_args largest=50 ```
+python -m community_detection_1.main network.dat MLRMCL --output_file output.txt--algorithm_args largest=50
+ ```
 
 `community_detection_1` is the name of the Python package. The input file is `network.dat` and the algorithm chosen for this example is `MLRMCL`. The output path is specified as `output.txt` and `largest=50` is one of the parameters of the algorithm.
 
@@ -110,4 +111,5 @@ python -m community_detection_1.main network.dat MLRMCL --output_file output.txt
 sh
 ```python
 import community_detection_1.main as main
-res = main.run_community_detection('network.dat', 'blue_genes')```
+res = main.run_community_detection('network.dat', 'blue_genes')
+```
