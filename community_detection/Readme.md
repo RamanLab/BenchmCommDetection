@@ -31,8 +31,8 @@ python -m community_detection_1.main network.dat MLRMCL --output_file output.txt
 ## List of Implemented Algorithms and Corresponding Arguments
 
 ### General Algorithm Arguments
-1. `weighted` (can be `True` or `False`)
-2. `directed` (can be `True` or `False`)
+1. `weighted` (can be `TRUE` or `FALSE`)
+2. `directed` (can be `TRUE` or `FALSE`)
 
 ### Specific Algorithms
 
@@ -41,47 +41,47 @@ python -m community_detection_1.main network.dat MLRMCL --output_file output.txt
     - `filters` ("quantile", "pageRank", "double")
     - `inteWeight` ("no", "yes")
 
-2. **team_cs**
-    - `Recursive` (True, False)
+2. **TeamCS**
+    - `Recursive` (TRUE, FALSE)
 
-3. **tripleahc**
+3. **TripleAHC**
     - `t1` (weight threshold - lower limit)
     - `t2` (weight threshold - upper limit)
 
-4. **zhenhua**
+4. **Zhenhua**
     - `max_limit` (integer indicating the maximum allowed size of a community)
     - `method` (1 for walktrap, 2 for infomap)
 
 5. **walktrap**
     - `steps` (any integer)
 
-6. **spin_glass**
+6. **Spin glass**
     - `spins` (corresponds to number of communities)
 
-7. **louvain**
+7. **Louvain**
     - `resolution` (0.1-10)
 
-8. **fast_greedy**
+8. **Fast greedy**
 
-9. **luminex**
+9. **Luminy_mutliplex**
     - `p` (0.1-10, corresponds to resolution)
 
-10. **nextmr**
+10. **Nextmr**
     - `min_limit` (minimum size of allowed clusters)
 
-11. **Spectral_clustering**
+11. **Spectral clustering**
     - `n_clusters` (number of output clusters)
     - `n_components` (dimension of latent representation)
 
-12. **tuskdmi**
+12. **Tuskdmi**
     - `num_com` (number of output communities)
 
-13. **bigs2**
+13. **Big-S2**
     - `min_size` (minimum size of output community)
     - `max_size` (maximum size of output community)
     - `Max_iter` (number of iterations)
 
-14. **bluegenes**
+14. **blue_genes**
     - `min_limit` (minimum size of output communities)
     - `alpha` (can be 1, 1.5, or 2)
     - `cut_size` (0.999 when community structure not very clear, 0.99 otherwise)
@@ -93,18 +93,18 @@ python -m community_detection_1.main network.dat MLRMCL --output_file output.txt
     - `min_limit` (minimum size of output community)
     - `max_limit` (maximum size of output community)
 
-17. **csbioiitm_hamming**
+17. **csbio_iitm-hamming**
 
 18. **SVT**
     - `n_clusters` (number of output communities)
 
-19. **label_propagation**
+19. **Label propagation**
     - `spins` (upper limit for number of communities)
 
-20. **shared_neighbor**
+20. **Shared neighbor**
     - `limit` (any integer)
 
-21. **girvan_newman**
+21. **Girvan newman**
     - `most_valuable_edge` (tuple (u,v))
 
 ## Example for Importing in an External Python Script
