@@ -4,7 +4,7 @@
 This project contains analysis and results from artificial and social benchmark analysis.
 
 ## Benchmark Workflow
-![Benchmark Workflow](Figures/PNG format/Fig4.png)
+![Benchmark Workflow](Figures/PNG_format/Fig4.png)
 
 ## Folder Structure
 - `Figures/`: Contains the figures used in the project.
