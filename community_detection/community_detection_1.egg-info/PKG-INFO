@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Name: community_detection_1
+Version: 0.1
+Requires-Dist: numpy
+Requires-Dist: networkx
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: infomap
+Requires-Dist: scikit-learn
+Requires-Dist: argparse

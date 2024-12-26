@@ -1,0 +1,7 @@
+numpy
+networkx
+pandas
+matplotlib
+infomap
+scikit-learn
+argparse
