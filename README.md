@@ -11,8 +11,7 @@ This project contains analysis and results from artificial and social benchmark 
 - `LFR_Results/`: Contains results from artificial benchmark analysis.
 - `Social_benchmark_results/`: Contains results from social benchmark analysis.
 - `Social_networks/`: Contains datasets used for benchmarking.
-- `Mu-*/`: Folders containing LFR networks used for benchmarking.
-- `S-*/`: Folders containing LFR networks used for benchmarking.
+- `LFR_networks/`: Folders containing LFR networks used for benchmarking.
 - `community_detection/`: Contains the Python module developed for implementing community detection algorithms. This directory also includes a README file with detailed information about the package.
 
 ## Usage
