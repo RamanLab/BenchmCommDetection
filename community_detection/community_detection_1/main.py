@@ -99,8 +99,17 @@ def pc_2(output_path):
 
     return predictedcommunities
 # Triple AHC
+def str_to_bool(s):
+    if type(s)==str:
+        return {'true': True, 'false': False}[s.lower()]
+    else:
+        return s
 #Silence of the noise & Random Walk based
 def triple_ahc(t1=0.1,t2=1000,weighted=True,directed=False,network_file='',G=None):
+    t1=float(t1)
+    t2=float(t2)
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     json_list=graph_json(G,weighted=weighted)
@@ -143,6 +152,9 @@ def triple_ahc(t1=0.1,t2=1000,weighted=True,directed=False,network_file='',G=Non
 #random walk dynamics methods (Walktrap and Infomap) to detect disease modules from biological networks
 def zhenhua(max_limit=49,method=1,weighted=True,directed=False,network_file='',G=None):
     # Method 1 is walktrap and Method 2 is infomap
+    max_limit=int(max_limit)
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     json_list=graph_json(G,weighted=weighted)
@@ -176,6 +188,9 @@ def zhenhua(max_limit=49,method=1,weighted=True,directed=False,network_file='',G
 #NextMR
 #Hybrid method
 def nextmr(min_limit=21,weighted=True,directed=False,network_file='',G=None):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    min_limit=int(min_limit)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     original_nodes = list(G.nodes())
@@ -217,6 +232,11 @@ def nextmr(min_limit=21,weighted=True,directed=False,network_file='',G=None):
 """The preliminary focus of this approach relies on the application of diffusion kernels to network graphs - in a sense re-creating the network topology such that the edges (relationships) between nodes (genes) are re-defined after taking into account the global structure of the graph (Kondor & Lafferty 2002). The amount of information gleaned from the global structure of the graph is determined by the tuning parameter [we have designated as] alpha, with higher alpha levels resulting in a 'more diffused' topology for the new graph structure. After generating new graph structures across a range of alpha levels, our secondary objective was to evaluate the different methods of module detection within WGCNA."""
 def blue_genes(min_limit=21,alpha=15,weighted=True,directed=False,network_file='',cut_size=0.99,G=None):
     # alpha can take values 1,15, 2 where 15 denotes 1.5
+    min_limit=int(min_limit)
+    alpha=int(alpha)
+    cut_size=float(cut_size)
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     json_list=graph_json(G,weighted=weighted)
@@ -265,9 +285,22 @@ def blue_genes(min_limit=21,alpha=15,weighted=True,directed=False,network_file='
         os.remove(json_file_path)
     return communities,t2-t1
 #Disease module identification with balanced multi-layer regularized Markov cluster algorithm
-def causality(network_file='',G=None,weighted=True,directed=False,filters='pageRank',inteWeight='no',largest=50):
+def causality(network_file='',G=None,weighted=True,directed=False,filters='pageRank',inteWeight='yes',largest=50):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
+    if directed:
+        bool='TRUE'
+        weakly_connected_components = nx.weakly_connected_components(G)
+        largest_wcc = max(weakly_connected_components, key=len)
+        G = G.subgraph(largest_wcc).copy()
+    else:
+        bool='False'
+        connected_components = nx.connected_components(G)
+        largest_cc = max(connected_components, key=len)
+        G = G.subgraph(largest_cc).copy()
     json_list=graph_json(G,weighted=weighted)
     
     #json_list=graph_json(G)
@@ -282,13 +315,15 @@ def causality(network_file='',G=None,weighted=True,directed=False,filters='pageR
         bool='TRUE'
     else:
         bool='False'
-    cmd = ['Rscript', r_script_path_5,json_file_path, '',filters,inteWeight,bool,str(largest),str(len(G.nodes)),script_dir]
+    cmd = ['Rscript', r_script_path_5,json_file_path, '',filters,inteWeight,bool,str(largest),str(800),script_dir]
     t1=time.time()
     res=subprocess.run(cmd,capture_output=True, text=True, universal_newlines=True)
     t2=time.time()
     #print(res.stdout)
     if res.returncode != 0:
+
         print("Error running R script:", res.stderr)
+        print("stdout",res.stdout)
     else:
         #print(res.stdout[19:])
         #communities = json.loads(res.stdout[19:])
@@ -305,6 +340,10 @@ def causality(network_file='',G=None,weighted=True,directed=False,filters='pageR
     return communities,t2-t1
 #dcut
 def tsuromi_ono_local(weighted=True,directed=False,G=None,network_file='',min_limit=21,max_limit=50):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    min_limit=int(min_limit)
+    max_limit=int(max_limit)
     f=0
     if network_file=='':
         f=1
@@ -321,7 +360,7 @@ def tsuromi_ono_local(weighted=True,directed=False,G=None,network_file='',min_li
                 network_file = network_file.replace("\\", "/")
     #network_file=convert_to_linux_path(network_file)
     #network_file=convert_to_linux_path(network_file)
-    
+    cwd=os.getcwd()
     script_dir = os.path.dirname(os.path.abspath(__file__))
     #print(f'{script_dir} hi')
     os.chdir(script_dir)
@@ -352,6 +391,7 @@ def tsuromi_ono_local(weighted=True,directed=False,G=None,network_file='',min_li
         os.remove(f'{temp_file.name[:-3]}tree_file')
         """if f==1:
             os.remove(network_file)"""
+    os.chdir(cwd)
     return clusters,t2-t1
 # Team Tusk
 # Double Spectral Approach to DREAM 11 Subchallenge 3
@@ -359,6 +399,9 @@ def tsuromi_ono_local(weighted=True,directed=False,G=None,network_file='',min_li
  
 The general strategy was as follows: 1) Compute the DSD matrix 2) Use this as input to a generic clustering method (in the case of our final submission, spectral clustering 3)."""
 def tuskdmi(num_com=28,G=None,network_file='',weighted=True,directed=False):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    num_com=int(num_com)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     if not weighted:
@@ -390,6 +433,9 @@ def tsuromi_ono_local_2(network_file='',threads=4,max_limit=49,min_limit=21,G=No
 #csbio-iitm
 #Louvain
 def csbio_iitm_louvain(network_file='',resolution = 0.1,G=None,weighted=True,directed=False):
+    resolution=float(resolution)
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     if directed:
@@ -401,6 +447,8 @@ def csbio_iitm_louvain(network_file='',resolution = 0.1,G=None,weighted=True,dir
 #csbio-iitm
 #hierarchical louvain
 def csbio_iitm_louvain2(network_file='',G=None,weighted=True,directed=False):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     if directed:
@@ -412,16 +460,38 @@ def csbio_iitm_louvain2(network_file='',G=None,weighted=True,directed=False):
 #SealangBrown
 #Shared Neighbor Clustering for Disease Module Identification
 def sealangbrown(G=None,network_file='',limit=50,weighted=True,directed=False):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    limit=int(limit)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
+    if directed:
+        weakly_connected_components = nx.weakly_connected_components(G)
+        largest_wcc = max(weakly_connected_components, key=len)
+        G = G.subgraph(largest_wcc).copy()
+    else:
+        connected_components = nx.connected_components(G)
+        largest_cc = max(connected_components, key=len)
+        G = G.subgraph(largest_cc).copy()
     t1=time.time()
-    com=sealangbrown_modified.SNcluster(graph=G,limit=50,directed=directed)
+    com=sealangbrown_modified.SNcluster(graph=G,limit=limit,directed=directed)
     t2=time.time()
     return com,t2-t1
 # Tianle
 def tianle(G=None,weighted=True,network_file='',directed=False,n_clusters=30):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    n_clusters=int(n_clusters)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
+    if directed:
+        weakly_connected_components = nx.weakly_connected_components(G)
+        largest_wcc = max(weakly_connected_components, key=len)
+        G = G.subgraph(largest_wcc).copy()
+    else:
+        connected_components = nx.connected_components(G)
+        largest_cc = max(connected_components, key=len)
+        G = G.subgraph(largest_cc).copy()
     """if not weighted:
         for u, v in G.edges():
             G[u][v]['weight'] = 1."""
@@ -431,6 +501,12 @@ def tianle(G=None,weighted=True,network_file='',directed=False,n_clusters=30):
     return communities,t2-t1
 # Big-S2
 def big_s2(G=None,weighted=True,network_file='',directed=False,min_size=21,max_size=49, Max_iter=15, M=5):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    min_size=int(min_size)
+    max_size=int(max_size)
+    Max_iter=int(Max_iter)
+    M=int(M)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     t1=time.time()
@@ -439,6 +515,8 @@ def big_s2(G=None,weighted=True,network_file='',directed=False,min_size=21,max_s
     return [[k for k in j] for j in communities],t2-t1
 # Team CS and Aleph(Infomap)
 def teamcs_aleph(G=None,weighted=True,directed=False,network_file='',recursive=True):
+    if type(recursive)==str:
+        recursive=True if recursive=="True" else False
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     t1=time.time()
@@ -454,14 +532,29 @@ def sim_net(G=None,weighted=True,directed=False,network_file='',groupNumber=28):
     t2=time.time()
     return communities,t2-t1
 def sim_net_2(G=None,weighted=True,directed=False,network_file='',groupNumber=28,max_limit=50):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    groupNumber=int(groupNumber)
+    max_limit=int(max_limit)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
+    if directed:
+        weakly_connected_components = nx.weakly_connected_components(G)
+        largest_wcc = max(weakly_connected_components, key=len)
+        G = G.subgraph(largest_wcc).copy()
+    else:
+        connected_components = nx.connected_components(G)
+        largest_cc = max(connected_components, key=len)
+        G = G.subgraph(largest_cc).copy()
     t1=time.time()
     communities = SIM_Net_modified.community_detection_pipeline(G,initial_clusters=groupNumber, cluster_size_threshold=max_limit)
     t2=time.time()
     return communities,t2-t1
 # Luminex
 def luminex(weighted=True,directed=False,network_file='',G=None,p=1):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    p=int(p)
     if network_file=='':
         
         if not weighted:
@@ -477,6 +570,9 @@ def luminex(weighted=True,directed=False,network_file='',G=None,p=1):
                 network_file = network_file.replace("\\", "/")
     network_file=convert_to_linux_path(network_file)
     
+    original_dir = os.getcwd()
+
+    # Change to the script directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     t1=time.time()
@@ -490,11 +586,24 @@ def luminex(weighted=True,directed=False,network_file='',G=None,p=1):
         communities =[[int(j) for j in i] for i in json.loads(res.stdout)]
         #print(communities)
     os.remove(f'{script_dir}\\outFile.cls')
+    os.chdir(original_dir)
     return communities,t2-t1
 # Spectral Clustering
 def spectral_clustering(weighted=True,directed=False,network_file='',G=None,n_clusters=30,n_components=10):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    n_clusters=int(n_clusters)
+    n_components=int(n_components)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
+    if directed:
+        weakly_connected_components = nx.weakly_connected_components(G)
+        largest_wcc = max(weakly_connected_components, key=len)
+        G = G.subgraph(largest_wcc).copy()
+    else:
+        connected_components = nx.connected_components(G)
+        largest_cc = max(connected_components, key=len)
+        G = G.subgraph(largest_cc).copy()
     original_nodes = list(G.nodes())
     node_mapping = {node: idx for idx, node in enumerate(original_nodes)}
     reverse_mapping = {idx: node for node, idx in node_mapping.items()}
@@ -525,6 +634,7 @@ def walktrap(G=None,weighted=True,directed=False,network_file='',steps=10):
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     """if directed:
         G=G.to_undirected()"""
+    steps=int(steps)
     original_nodes = list(G.nodes())
     node_mapping = {node: idx for idx, node in enumerate(original_nodes)}
     reverse_mapping = {idx: node for node, idx in node_mapping.items()}
@@ -575,6 +685,8 @@ def label_propogation(G=None,weighted=True,directed=False,network_file='',spins=
     return label_communities,t2-t1
 
 def fast_greedy(G=None,weighted=True,directed=False,network_file=''):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     if directed:
@@ -599,6 +711,9 @@ def fast_greedy(G=None,weighted=True,directed=False,network_file=''):
     return label_communities,t2-t1
 
 def spin_glass(G=None,weighted=True,directed=False,network_file='',spins=25):
+    weighted=str_to_bool(weighted)
+    directed=str_to_bool(directed)
+    spins=int(spins)
     if network_file!='':
         G=process_network_file(network_file=network_file,directed=directed,weighted=weighted)
     if directed:
@@ -691,7 +806,7 @@ def run_community_detection(input_data, method_1='',  output_file='', **kwargs):
     'DSD_kernel':'tuskdmi','Iterative_SC':'big_s2','exp-laplacian_kernel':'blue_genes','sc_agg':'sim_net',
     'dcut':'tsuromi_ono','hamming_ensemble':'csbio_iitm_hier','SVT':'tianle','label_propagation':'label_propagation','shared_neighbor':'sealang_brown','girvan_newman':'girvan_newman','leading_eigen_vector':'leading_eigen_vector'}
     algo_map={'MLRMCL':'causality','teamCS':'teamcs_aleph','triple_ahc':'triple_ahc','zhenhua':'zhenhua','walktrap':'walktrap','spin_glass':'spin_glass',
-    'louvain':'csbio_iitm','fast_greedy':'fast_greedy','luminex':'luminex','nextmr':'nextmr','spectral_clustering':'spectral_clustering',
+    'louvain':'csbio_iitm','fast_greedy':'fast_greedy','luminy_multiplex':'luminex','nextmr':'nextmr','spectral_clustering':'spectral_clustering',
     'DSD_kernel':'tuskdmi','big_s2':'big_s2','blue_genes':'blue_genes','SpecHier':'sim_net',
     'dcut':'tsuromi_ono','csbio_iitm_hamming':'csbio_iitm_hier','SVT':'tianle','label_propagation':'label_propagation','shared_neighbor':'sealang_brown','girvan_newman':'girvan_newman','leading_eigen_vector':'leading_eigen_vector'}
     
@@ -757,12 +872,15 @@ def run_community_detection(input_data, method_1='',  output_file='', **kwargs):
         raise ValueError(f"Unsupported algorithm: {method}")
 
     # Optionally save the clusters to a file
+    print(len(clusters))
     if output_file!='':
         #if output_file
         with open(output_file, 'w') as f:
+            f.write(f"Time: {t}\n")
             for i, cluster in enumerate(clusters, 1):
                 f.write(f"Cluster {i}: {cluster}\n")
     #print(clusters)
+    print(t)
     return clusters,t
 
 def main():
@@ -785,7 +903,3 @@ def main():
         method_1=args.method,
         **algorithm_args
     )
-
-
-if __name__ == '__main__':
-    main()
