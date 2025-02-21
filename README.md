@@ -20,7 +20,7 @@ To reobtain the figures, run the following Jupyter notebooks:
 - `LFR_Results.ipynb`
 - `Social_Results.ipynb`
 - `Estimating_mu.ipynb`
-- `Gene_enrichment.ipynb
+- `Gene_enrichment.ipynb`
 
 
 ## Installation
