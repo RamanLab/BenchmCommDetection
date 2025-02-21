@@ -12,6 +12,7 @@ This project contains analysis and results from artificial and social benchmark 
 - `Social_benchmark_results/`: Contains results from social benchmark analysis.
 - `Social_networks/`: Contains datasets used for benchmarking.
 - `LFR_networks/`: Folders containing LFR networks used for benchmarking.
+- `ppi_data/`:Directory containing the data and results from gene enrichment analysis
 - `community_detection/`: Contains the Python module developed for implementing community detection algorithms. This directory also includes a README file with detailed information about the package.
 
 ## Usage
@@ -19,6 +20,7 @@ To reobtain the figures, run the following Jupyter notebooks:
 - `LFR_Results.ipynb`
 - `Social_Results.ipynb`
 - `Estimating_mu.ipynb`
+- `Gene_enrichment.ipynb
 
 
 ## Installation
