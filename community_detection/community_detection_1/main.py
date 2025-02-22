@@ -45,7 +45,24 @@ def extract_list_of_lists(input_str):
         return f"Error: {e}"
 
 # Example usage
-
+def remap_graph(G):
+    """
+    Remaps the graph's nodes to integers and returns the mapping and the remapped graph.
+    """
+    # Create a mapping from the original nodes to integer labels
+    node_mapping = {node: i for i, node in enumerate(G.nodes())}
+    # Create a reverse mapping to remap back to original nodes after processing
+    reverse_mapping = {i: node for node, i in node_mapping.items()}
+    # Relabel the graph nodes using the integer mapping
+    G_mapped = nx.relabel_nodes(G, node_mapping)
+    
+    return G_mapped, node_mapping, reverse_mapping
+def remap_results_to_original(results, reverse_mapping):
+    """
+    Remaps the processed results (list of lists) back to the original node labels.
+    """
+    remapped_results = [[reverse_mapping[node] for node in community] for community in results]
+    return remapped_results
 
 
 def graph_json(graph,weighted=True):
@@ -823,7 +840,7 @@ def run_community_detection(input_data, method_1='',  output_file='', **kwargs):
         G = input_data
     else:
         raise ValueError("input_data must be a file path to a DGEList or a NetworkX graph.")
-
+    G, node_mapping, reverse_mapping = remap_graph(G)
     if method == 'triple_ahc':
         clusters,t = triple_ahc(G=G, **kwargs)
     elif method == 'zhenhua':
@@ -881,6 +898,7 @@ def run_community_detection(input_data, method_1='',  output_file='', **kwargs):
                 f.write(f"Cluster {i}: {cluster}\n")
     #print(clusters)
     print(t)
+    clusters = remap_results_to_original(clusters, reverse_mapping)
     return clusters,t
 
 def main():
@@ -903,3 +921,7 @@ def main():
         method_1=args.method,
         **algorithm_args
     )
+
+
+if __name__ == '__main__':
+    main()
